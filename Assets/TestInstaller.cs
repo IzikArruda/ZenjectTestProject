@@ -1,11 +1,11 @@
+using System;
 using UnityEngine;
 using Zenject;
 
 public class TestInstaller : MonoInstaller<TestInstaller>
 {
-    public GameObject entityPrefab;
-    public GameObject audioPlayerPrefab;
-    public AudioClip entityStickClip;
+    [Inject]    //We get the settings from the TestInstallerSettings as it gives us a TestInstaller.Settings bind
+    Settings _settings = null;
 
     public override void InstallBindings() 
     {
@@ -16,7 +16,7 @@ public class TestInstaller : MonoInstaller<TestInstaller>
          
         /* Create an interractable factory. Use the entity prefab when creating new entities. */
         Container.BindFactory<Entity, Entity.Factory>()
-            .FromComponentInNewPrefab(entityPrefab)
+            .FromComponentInNewPrefab(_settings.entityPrefab)
             .WithGameObjectName("Entity")
             .UnderTransformGroup("Entities");
 
@@ -25,12 +25,12 @@ public class TestInstaller : MonoInstaller<TestInstaller>
         Container.BindInterfacesAndSelfTo<EntityManager>().AsSingle().NonLazy();
         Container.BindInterfacesAndSelfTo<GameController>().AsSingle().NonLazy();
         //Add arguments to the entitymanager creation
-        Container.BindInstance(entityStickClip).WhenInjectedInto<EntityManager>();
+        Container.BindInstance(_settings.entityStickClip).WhenInjectedInto<EntityManager>();
 
 
         /* Create the binding for the sound manager */
         Container.Bind<SoundManager>()
-            .FromComponentInNewPrefab(audioPlayerPrefab)
+            .FromComponentInNewPrefab(_settings.audioPlayerPrefab)
             .WithGameObjectName("Sound Manager")
             .AsSingle().NonLazy();
 
@@ -39,5 +39,13 @@ public class TestInstaller : MonoInstaller<TestInstaller>
 		Container.DeclareSignal<EntitySoundSignal>();
         //Binding the SoundManager prevents the need of having it subscribe to this signal
         Container.BindSignal<EntitySoundSignal>().ToMethod<SoundManager>(x => x.RecievedSignal).FromResolve();
+    }
+
+
+    [Serializable]
+    public class Settings {
+        public GameObject entityPrefab;
+        public GameObject audioPlayerPrefab;
+        public AudioClip entityStickClip;
     }
 }

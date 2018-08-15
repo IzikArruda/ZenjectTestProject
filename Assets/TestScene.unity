@@ -222,11 +222,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d74d05a2b1029804bbcae25e4a0ba0aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  entityPrefab: {fileID: 1681158569830754, guid: 0d95f415639bb9e46ad5e1870d2a01c6,
-    type: 2}
-  audioPlayerPrefab: {fileID: 1748435598669490, guid: 5fda2dde56658d64fa1bd80c28bb9dc5,
-    type: 2}
-  entityStickClip: {fileID: 8300000, guid: 0c153dec5cea8284596d88780d9cb881, type: 3}
 --- !u!114 &813103457
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -241,7 +236,8 @@ MonoBehaviour:
   _installers:
   - {fileID: 813103456}
   _installerPrefabs: []
-  _scriptableObjectInstallers: []
+  _scriptableObjectInstallers:
+  - {fileID: 11400000, guid: d77ce73ef2408a04d9b4f72a22375947, type: 2}
   _autoRun: 1
   _parentNewObjectsUnderRoot: 0
   _contractNames: []

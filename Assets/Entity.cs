@@ -62,7 +62,7 @@ public class Entity : MonoBehaviour {
          * Change this entity into a player
          */
 
-        gameObject.name = "Stray";
+        gameObject.name = "Player";
         player = true;
     }
 
@@ -71,7 +71,7 @@ public class Entity : MonoBehaviour {
          * Change this entity into a stray
          */
 
-        gameObject.name = "Player";
+        gameObject.name = "Stray";
         player = false;
     }
 

@@ -224,6 +224,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   entityPrefab: {fileID: 1681158569830754, guid: 0d95f415639bb9e46ad5e1870d2a01c6,
     type: 2}
+  audioPlayerPrefab: {fileID: 1748435598669490, guid: 5fda2dde56658d64fa1bd80c28bb9dc5,
+    type: 2}
+  entityStickClip: {fileID: 8300000, guid: 0c153dec5cea8284596d88780d9cb881, type: 3}
 --- !u!114 &813103457
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -6,13 +6,20 @@ using Zenject;
 public class EntityManager : ITickable, IFixedTickable {
     Entity.Factory _entityFactory;
     List<Entity> createdEntitties = new List<Entity>();
+	readonly SignalBus _signalBus;
+    
+    public readonly AudioClip _entityStickClip;
 
 
     #region Startup Functions
 
-    public EntityManager(Entity.Factory entityFactory) {
+    public EntityManager(
+			Entity.Factory entityFactory,
+			SignalBus signalBus,
+            AudioClip entityStickClip) {
         _entityFactory = entityFactory;
-        Debug.Log("Linked an entity factory");
+		_signalBus = signalBus;
+        _entityStickClip = entityStickClip;
     }
     
     void ResetEntities() {
@@ -105,7 +112,9 @@ public class EntityManager : ITickable, IFixedTickable {
         /*
          * Check if any players collided with any strays. The check is done by having
          * the strays check if they have collided with any players.
-         * When a stray collides with a player, have the stray become a player.
+         * 
+         * When a stray collides with a player, have the stray become a player
+         * and fire a signal to play a sound clip of the entity connecting.
          * 
          * A problem that will occur is that when a stray becomes a player, it won't 
          * check to see if it's connected to another stray on this tick.
@@ -116,6 +125,7 @@ public class EntityManager : ITickable, IFixedTickable {
         foreach(Entity stray in strays) {
             if(stray.CollidedWithEntities(players)) {
                 stray.BecomePlayer();
+                _signalBus.Fire(new EntitySoundSignal(_entityStickClip));
             }
         }
     }
@@ -134,7 +144,7 @@ public class EntityManager : ITickable, IFixedTickable {
         createdEntitties.Add(newEntity);
         newEntity.player = false;
         newEntity.NewPosition(new Vector3(0, 0, 0));
-
+        
         return newEntity;
     }
 

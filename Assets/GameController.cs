@@ -25,6 +25,9 @@ public class GameController : ITickable {
             case GameStates.Starting:
                 UpdateStarting();
                 break;
+			case GameStates.Playing:
+				UpdatePlaying();
+				break;
         }
     }
 
@@ -42,7 +45,7 @@ public class GameController : ITickable {
          * Pressing the left-mouse button will reset the game
          */
 
-        if(Input.GetMouseButtonDown(0)) {
+        if(Input.GetMouseButton(0)) {
             state = GameStates.Playing;
         }
     }

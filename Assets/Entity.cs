@@ -3,6 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
 
+public enum EntityType {
+    NULL,
+    Player,
+    Attached,
+    Stray
+}
+
 /*
  * A entity is anything that collides in the game.
  * 
@@ -11,7 +18,9 @@ using Zenject;
  */
 public class Entity : MonoBehaviour {
     public Vector3 center { get; set; }
-    public bool player;
+    public SpriteRenderer renderer;
+    public EntityType currentType = EntityType.NULL;
+
 
     public void UpdateFromInput() {
         /*
@@ -57,22 +66,38 @@ public class Entity : MonoBehaviour {
         return collided;
     }
 
-    public void BecomePlayer() {
+    public void BecomePlayer(Color entityColor) {
         /*
          * Change this entity into a player
          */
 
+        renderer.color = entityColor;
+        currentType = EntityType.Player;
         gameObject.name = "Player";
-        player = true;
     }
 
-    public void BecomeStray() {
+    public void BecomeStray(Color entityColor) {
         /*
          * Change this entity into a stray
          */
-
+         
+        renderer.color = entityColor;
+        currentType = EntityType.Stray;
         gameObject.name = "Stray";
-        player = false;
+    }
+
+    public void BecomeAttached(Color entityColor) {
+        /*
+         * Change this entity into an attached entitiy
+         */
+
+        renderer.color = entityColor;
+        currentType = EntityType.Attached;
+        gameObject.name = "Attached";
+    }
+
+    public bool IsControlled() {
+        return currentType == EntityType.Player || currentType == EntityType.Attached;
     }
 
     public void NewPosition(Vector3 pos) {

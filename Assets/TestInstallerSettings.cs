@@ -12,6 +12,7 @@ public class TestInstallerSettings : ScriptableObjectInstaller<TestInstallerSett
 {
     //Include the settings used in the TestInstaller
     public TestInstaller.Settings testInstallerSettings;
+    public EntityManager.EntityColors entityColors;
     
     [Serializable]
     public class Prefabs {
@@ -24,9 +25,11 @@ public class TestInstallerSettings : ScriptableObjectInstaller<TestInstallerSett
         public AudioClip entityStickClip;
     }
 
+
     public override void InstallBindings() {
         //Include the testInstaller's settings. The [Inject] call in the testInstaller 
         //is what we are binding this to.
         Container.BindInstance(testInstallerSettings);
+        Container.BindInstance(entityColors);
     }
 }

@@ -17,3 +17,7 @@ MonoBehaviour:
     audioPlayerPrefab: {fileID: 1748435598669490, guid: 5fda2dde56658d64fa1bd80c28bb9dc5,
       type: 2}
     entityStickClip: {fileID: 8300000, guid: 0c153dec5cea8284596d88780d9cb881, type: 3}
+  entityColors:
+    player: {r: 0, g: 0.7254902, b: 0, a: 1}
+    stray: {r: 0.56078434, g: 1, b: 1, a: 1}
+    attached: {r: 0, g: 0, b: 1, a: 1}

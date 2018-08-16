@@ -6,6 +6,8 @@ public class TestInstaller : MonoInstaller<TestInstaller>
 {
     [Inject]    //We get the settings from the TestInstallerSettings as it gives us a TestInstaller.Settings bind
     Settings _settings = null;
+    //[Inject]
+    //EntityManager.EntityColors _entityColors = null;
 
     public override void InstallBindings() 
     {
@@ -26,6 +28,7 @@ public class TestInstaller : MonoInstaller<TestInstaller>
         Container.BindInterfacesAndSelfTo<GameController>().AsSingle().NonLazy();
         //Add arguments to the entitymanager creation
         Container.BindInstance(_settings.entityStickClip).WhenInjectedInto<EntityManager>();
+        //Container.BindInstance(_entityColors).WhenInjectedInto<EntityManager>();
 
 
         /* Create the binding for the sound manager */

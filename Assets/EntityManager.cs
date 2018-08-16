@@ -1,27 +1,31 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
+using Random = UnityEngine.Random;
 
 public class EntityManager : ITickable, IFixedTickable {
     Entity.Factory _entityFactory;
     List<Entity> createdEntitties = new List<Entity>();
-	readonly SignalBus _signalBus;
-    
-    public readonly AudioClip _entityStickClip;
+    readonly SignalBus _signalBus;
+    readonly EntityColors _entityColors;
+    readonly AudioClip _entityStickClip;
 
 
     #region Startup Functions
 
     public EntityManager(
-			Entity.Factory entityFactory,
-			SignalBus signalBus,
-            AudioClip entityStickClip) {
+            Entity.Factory entityFactory,
+            SignalBus signalBus,
+            AudioClip entityStickClip,
+            EntityColors entityColors) {
         _entityFactory = entityFactory;
-		_signalBus = signalBus;
+        _signalBus = signalBus;
         _entityStickClip = entityStickClip;
+        _entityColors = entityColors;
     }
-    
+
     void ResetEntities() {
         /*
          * Remove all the entities from the game
@@ -50,29 +54,29 @@ public class EntityManager : ITickable, IFixedTickable {
 
     #region Helper Functions
 
-    List<Entity> GetAllPlayers() {
+    List<Entity> GetAllControlled() {
         /*
-         * Return a list of all player entities
+         * Return a list of all player-controlled entities
          */
-        List<Entity> players = new List<Entity>();
+        List<Entity> controlled = new List<Entity>();
 
         foreach(Entity entitiy in createdEntitties) {
-            if(entitiy.player) {
-                players.Add(entitiy);
+            if(entitiy.IsControlled()) {
+                controlled.Add(entitiy);
             }
         }
 
-        return players;
+        return controlled;
     }
 
     List<Entity> GetAllStrays() {
         /*
-         * Return a list of all non-player entities
+         * Return a list of all non-controlled entities
          */
         List<Entity> strays = new List<Entity>();
 
         foreach(Entity entitiy in createdEntitties) {
-            if(!entitiy.player) {
+            if(!entitiy.IsControlled()) {
                 strays.Add(entitiy);
             }
         }
@@ -83,15 +87,15 @@ public class EntityManager : ITickable, IFixedTickable {
     int StrayCount() {
         return GetAllStrays().Count;
     }
-    
+
     #endregion
 
 
     #region Tick Updates
 
     public void Tick() {
-        StrayPlayerCollisions();
-        
+        EntityCollisions();
+
         if(StrayCount() < 3) {
             NewStray();
         }
@@ -101,30 +105,30 @@ public class EntityManager : ITickable, IFixedTickable {
         /*
          * Update the player's position from user inputs
          */
-        List<Entity> players = GetAllPlayers();
-        
+        List<Entity> players = GetAllControlled();
+
         foreach(Entity player in players) {
             player.UpdateFromInput();
         }
     }
 
-    public void StrayPlayerCollisions() {
+    public void EntityCollisions() {
         /*
-         * Check if any players collided with any strays. The check is done by having
-         * the strays check if they have collided with any players.
+         * Check if any controlled entities collided with any strays. The check is done by having
+         * the strays check if they have collided with any controllables.
          * 
-         * When a stray collides with a player, have the stray become a player
+         * When a stray collides with a controllable, have the stray become a controllable
          * and fire a signal to play a sound clip of the entity connecting.
          * 
-         * A problem that will occur is that when a stray becomes a player, it won't 
+         * A problem that will occur is that when a stray becomes a controllable, it won't 
          * check to see if it's connected to another stray on this tick.
          */
-        List<Entity> players = GetAllPlayers();
+        List<Entity> players = GetAllControlled();
         List<Entity> strays = GetAllStrays();
 
         foreach(Entity stray in strays) {
             if(stray.CollidedWithEntities(players)) {
-                stray.BecomePlayer();
+                ChangeEntityState(stray, EntityType.Attached);
                 _signalBus.Fire(new EntitySoundSignal(_entityStickClip));
             }
         }
@@ -142,10 +146,30 @@ public class EntityManager : ITickable, IFixedTickable {
          */
         Entity newEntity = _entityFactory.Create();
         createdEntitties.Add(newEntity);
-        newEntity.player = false;
         newEntity.NewPosition(new Vector3(0, 0, 0));
-        
+
         return newEntity;
+    }
+
+    public void ChangeEntityState(Entity entity, EntityType newType) {
+        /*
+         * Change the EntityType of the given entity to the given newType
+         */
+
+        switch(newType) {
+            case EntityType.Player:
+                entity.BecomePlayer(_entityColors.player);
+                break;
+            case EntityType.Stray:
+                entity.BecomeStray(_entityColors.stray);
+                break;
+            case EntityType.Attached:
+                entity.BecomeAttached(_entityColors.attached);
+                break;
+            default:
+                Debug.Log("WARNING: Changing an entity into an unhandeled state");
+                break;
+        }
     }
 
     public void NewStray() {
@@ -156,7 +180,7 @@ public class EntityManager : ITickable, IFixedTickable {
         float randX = Random.Range(-10.0f, 10.0f);
         float randZ = Random.Range(-10.0f, 10.0f);
 
-        newStray.BecomeStray();
+        ChangeEntityState(newStray, EntityType.Stray);
         newStray.NewPosition(new Vector3(randX, 0, randZ));
     }
 
@@ -165,11 +189,17 @@ public class EntityManager : ITickable, IFixedTickable {
          * Create a new player interractable entity at the center of the world
          */
         Entity newPlayer = NewEntity();
-        newPlayer.player = true;
 
-        newPlayer.BecomePlayer();
+        ChangeEntityState(newPlayer, EntityType.Player);
         newPlayer.NewPosition(new Vector3(0, 0, 0));
     }
 
     #endregion
+
+    [Serializable]
+    public class EntityColors {
+        public Color player;
+        public Color stray;
+        public Color attached;
+    }
 }

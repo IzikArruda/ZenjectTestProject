@@ -11,13 +11,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5434cedfa731d2439a07315061dc81c, type: 3}
   m_Name: TestInstallerSettings
   m_EditorClassIdentifier: 
-  testInstallerSettings:
-    entityPrefab: {fileID: 1681158569830754, guid: 0d95f415639bb9e46ad5e1870d2a01c6,
-      type: 2}
-    audioPlayerPrefab: {fileID: 1748435598669490, guid: 5fda2dde56658d64fa1bd80c28bb9dc5,
-      type: 2}
-    entityStickClip: {fileID: 8300000, guid: 0c153dec5cea8284596d88780d9cb881, type: 3}
   entityColors:
     player: {r: 0, g: 0.7254902, b: 0, a: 1}
     stray: {r: 0.56078434, g: 1, b: 1, a: 1}
     attached: {r: 0, g: 0, b: 1, a: 1}
+    background: {r: 0.5283019, g: 0.5283019, b: 0.5283019, a: 1}
+  prefabs:
+    entityPrefab: {fileID: 1681158569830754, guid: 0d95f415639bb9e46ad5e1870d2a01c6,
+      type: 2}
+    audioPlayerPrefab: {fileID: 1748435598669490, guid: 5fda2dde56658d64fa1bd80c28bb9dc5,
+      type: 2}
+    backgroundPrefab: {fileID: 1486572328544098, guid: 8f45ba8350733af47a152923e43ac2bc,
+      type: 2}
+  soundEffects:
+    entityStickClip: {fileID: 8300000, guid: 0c153dec5cea8284596d88780d9cb881, type: 3}
+  gameSize:
+    width: 20
+    height: 10

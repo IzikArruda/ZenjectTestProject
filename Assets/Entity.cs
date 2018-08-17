@@ -102,11 +102,13 @@ public class Entity : MonoBehaviour {
 
     public void NewPosition(Vector3 pos) {
         /*
-         * Move the entity to the given position
+         * Move the entity to the given position. 
+         * 
+         * Prevent the player entity from leaving the game's bounds.
          */
-
+        
         center = pos;
-        gameObject.transform.position = center;
+        gameObject.transform.position = pos;
     }
 
     public class Factory : PlaceholderFactory<Entity> {

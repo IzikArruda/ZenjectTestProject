@@ -11,6 +11,7 @@ public class EntityManager : ITickable, IFixedTickable {
     readonly SignalBus _signalBus;
     readonly EntityColors _entityColors;
     readonly AudioClip _entityStickClip;
+    readonly WindowManager.GameSize _gameSize;
 
 
     #region Startup Functions
@@ -19,11 +20,13 @@ public class EntityManager : ITickable, IFixedTickable {
             Entity.Factory entityFactory,
             SignalBus signalBus,
             AudioClip entityStickClip,
-            EntityColors entityColors) {
+            EntityColors entityColors,
+            WindowManager.GameSize gameSize) {
         _entityFactory = entityFactory;
         _signalBus = signalBus;
         _entityStickClip = entityStickClip;
         _entityColors = entityColors;
+        _gameSize = gameSize;
     }
 
     void ResetEntities() {
@@ -69,6 +72,21 @@ public class EntityManager : ITickable, IFixedTickable {
         return controlled;
     }
 
+    Entity GetPlayer(List<Entity> entities) {
+        /*
+         * Return the first encountered player entity from the given list of entities
+         */
+        Entity player = null;
+
+        for(int i = 0; i < entities.Count && player == null; i++) {
+            if(entities[i].currentType == EntityType.Player) {
+                player = entities[i];
+            }
+        }
+
+        return player;
+    }
+
     List<Entity> GetAllStrays() {
         /*
          * Return a list of all non-controlled entities
@@ -103,13 +121,50 @@ public class EntityManager : ITickable, IFixedTickable {
 
     public void FixedTick() {
         /*
-         * Update the player's position from user inputs
+         * Update the player's position from user inputs. 
+         * 
+         * First move the player entity then clamp their position within the game area.
          */
-        List<Entity> players = GetAllControlled();
+        List<Entity> controllables = GetAllControlled();
+        Entity player = GetPlayer(controllables);
 
-        foreach(Entity player in players) {
+
+
+        if(player != null) {
+            Vector3 previousPosition = player.center;
+
+            /* Move the player using user input */
             player.UpdateFromInput();
+            float curX = player.center.x;
+            float curZ = player.center.z;
+            //Clamp the player within the game bounderies
+            if(curX < 0) {
+                curX = 0;
+            }
+            else if(curX > _gameSize.width) {
+                curX = _gameSize.width;
+            }
+            if(curZ < 0) {
+                curZ = 0;
+            }
+            else if(curZ > _gameSize.height) {
+                curZ = _gameSize.height;
+            }
+            Vector3 currentPositon = new Vector3(curX, player.center.y, curZ);
+            player.NewPosition(currentPositon);
+            //Get the actual movement
+            Vector3 actualMovement = currentPositon - previousPosition;
+            Debug.Log(actualMovement);
+
+
+            /* Apply the movement to the controllable entities (except for the player) */
+            foreach(Entity controllable in controllables) {
+                if(controllable.currentType != EntityType.Player) {
+                    controllable.NewPosition(controllable.center + actualMovement);
+                }
+            }
         }
+
     }
 
     public void EntityCollisions() {
@@ -177,8 +232,8 @@ public class EntityManager : ITickable, IFixedTickable {
          * Create a new stray interractable entity in a random position
          */
         Entity newStray = NewEntity();
-        float randX = Random.Range(-10.0f, 10.0f);
-        float randZ = Random.Range(-10.0f, 10.0f);
+        float randX = Random.Range(0, _gameSize.width);
+        float randZ = Random.Range(0, _gameSize.height);
 
         ChangeEntityState(newStray, EntityType.Stray);
         newStray.NewPosition(new Vector3(randX, 0, randZ));
@@ -191,7 +246,7 @@ public class EntityManager : ITickable, IFixedTickable {
         Entity newPlayer = NewEntity();
 
         ChangeEntityState(newPlayer, EntityType.Player);
-        newPlayer.NewPosition(new Vector3(0, 0, 0));
+        newPlayer.NewPosition(new Vector3(_gameSize.width/2f, 0, _gameSize.height / 2f));
     }
 
     #endregion
@@ -201,5 +256,6 @@ public class EntityManager : ITickable, IFixedTickable {
         public Color player;
         public Color stray;
         public Color attached;
+        public Color background;
     }
 }
